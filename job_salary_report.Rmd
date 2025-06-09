@@ -1,0 +1,82 @@
+---
+title: "Job Salary Analysis Report"
+author: ' Dr. Carola J. Salas'
+date: "2025-06-08"
+output:
+  html_document: null
+  self_contained: true
+  output_file: index.html
+  
+---
+
+## Introduction
+
+This report analyzes a dataset of job postings stored in **Excel format** to understand how required years of experience relate to salary, and how salary varies by programming‑language requirements.
+
+```{r setup , echo=FALSE, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(readxl)   # read_excel()
+library(dplyr)    # data wrangling
+library(stringr)  # str_replace_all()
+library(ggplot2)  # visualisation
+```
+
+```{r load-data, echo=FALSE, include=FALSE}
+# Read the Excel file (make sure it is in the same folder as this Rmd)
+
+library(readxl)
+df <- job_analysis <- read_excel("C:/Users/csalas/OneDrive/Documentos/2025_R_training/week03/Job Analysis/job_analysis.xlsx")
+
+
+# Standardise column names
+names(df) <- trimws(names(df))
+names(df) <- stringr::str_replace_all(
+  names(df),
+  c("Minumun Years Experience" = "Minimum Years Experience")
+)
+
+# Harmonise spelling variants of the “Both” category
+df <- df %>% 
+  mutate(
+    `Data Languages` = str_replace_all(
+      `Data Languages`,
+      regex("Both \\(R and (Python|Phyton)\\)"),
+      "Both"
+    )
+  )
+```
+
+## Years of Experience Analysis
+
+```{r scatter-plot, fig.width=7, fig.height=4.5, echo=FALSE}
+ggplot(df, aes(`Minimum Years Experience`, `Median Salary Estimate`)) +
+  geom_point(alpha = 0.7, size = 2) +
+  labs(
+    title = "Experience vs Salary",
+    x = "Minimum Years Experience",
+    y = "Median Salary Estimate (USD)"
+  ) +
+  theme_minimal()
+```
+
+The scatter plot suggests little to no linear relationship between the minimum years of experience required and the median salary offered. Salaries vary widely across similar experience levels, indicating that other factors—such as role, industry, and location—play a more significant role in compensation.
+
+## Programming Language Analysis
+
+```{r box-plot, fig.width=7, fig.height=4.5, echo=FALSE}
+ggplot(df, aes(`Data Languages`, `Median Salary Estimate`)) +
+  geom_boxplot(outlier.shape = 21, fill = "white") +
+  labs(
+    title = "Salary Distribution by Programming Language",
+    x = "Data Languages",
+    y = "Median Salary Estimate (USD)"
+  ) +
+  theme_minimal()
+```
+
+Roles that require proficiency in both R and Python tend to offer the highest median salaries, followed closely by Python‑only roles. Positions with no specified language requirements show the widest salary range, while R‑only roles have the lowest median and a narrower spread.
+
+## Reflection
+
+Working on this assignment was a challenge for the simultaneous use of different AI tools, with not enough time for learning and trying to get an answer from Cursor for example. I also explored the limitations it had, including the limitations of using a free account with no chance to update.
+I also learned I should not rely the R coding for Cursor to decide what is the best option, this will use coding that might not be familiar to me. Once this was unfamiliar this was complicated to manage coding, use of AI, but it was manageable at the very end.
